@@ -54,7 +54,7 @@ Identify:
       },
     });
 
-    const rawJsonText = response.text();
+    const rawJsonText = typeof (response as any).text === 'function' ? (response as any).text() : response.text;
     if (!rawJsonText) return null;
 
     const parsedJson = JSON.parse(rawJsonText);

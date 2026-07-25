@@ -85,7 +85,8 @@ Provide action (cancel, downgrade, renegotiate, or keep), punchy headline, 1-sen
       },
     });
 
-    const parsed = JSON.parse(response.text() || '{}');
+    const rawText = typeof (response as any).text === 'function' ? (response as any).text() : response.text;
+    const parsed = JSON.parse(rawText || '{}');
     const validated = RecommendationSchema.parse(parsed);
 
     return {
@@ -175,7 +176,8 @@ Return JSON with subject line, email body (with placeholders like [Your Name]), 
       },
     });
 
-    const parsed = JSON.parse(response.text() || '{}');
+    const rawText = typeof (response as any).text === 'function' ? (response as any).text() : response.text;
+    const parsed = JSON.parse(rawText || '{}');
     const validated = EmailDraftSchema.parse(parsed);
 
     return {
