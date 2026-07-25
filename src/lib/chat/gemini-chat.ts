@@ -8,6 +8,12 @@ import {
 } from './chat-tools';
 import { GEMINI_API_TIMEOUT_MS } from '../constants';
 
+export interface ChatResponseResult {
+  text: string;
+  source: 'gemini' | 'fallback';
+  errorDetails?: string;
+}
+
 const toolDeclarations: FunctionDeclaration[] = [
   {
     name: 'getSubscriptionByName',
@@ -82,7 +88,6 @@ function runLocalOfflineQuery(userQuery: string, subscriptions: SubscriptionItem
     return `Category spend breakdown: ${cats}`;
   }
 
-  // Check for specific merchant name in query
   for (const sub of subscriptions) {
     if (queryLower.includes(sub.merchantName.toLowerCase())) {
       const res = getSubscriptionByName(sub.merchantName, subscriptions);
@@ -98,13 +103,17 @@ export async function processChatQueryWithTools(
   userQuery: string,
   subscriptions: SubscriptionItem[],
   summary: DashboardSummary
-): Promise<string> {
+): Promise<ChatResponseResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
   if (!apiKey || apiKey.includes('your_gemini_api_key')) {
     console.warn('⚠️ [SubSense AI]: No valid GEMINI_API_KEY configured. Running offline grounded query engine.');
-    return runLocalOfflineQuery(userQuery, subscriptions);
+    return {
+      text: runLocalOfflineQuery(userQuery, subscriptions),
+      source: 'fallback',
+      errorDetails: 'No GEMINI_API_KEY configured in .env',
+    };
   }
 
   try {
@@ -136,7 +145,6 @@ User Question: "${userQuery}"`;
 
     const response = await Promise.race([callPromise, timeoutPromise]);
     
-    // Check if model called function(s)
     const functionCalls = response.functionCalls || [];
 
     if (functionCalls && functionCalls.length > 0) {
@@ -161,7 +169,6 @@ User Question: "${userQuery}"`;
         toolResults.push(`Tool ${name} Output: ${res}`);
       }
 
-      // Synthesize final grounded answer
       const followupPrompt = `${systemPrompt}\n\nTool Execution Results:\n${toolResults.join('\n')}\n\nProvide a concise, punchy, grounded answer to the user.`;
 
       const finalResponse = await ai.models.generateContent({
@@ -169,12 +176,23 @@ User Question: "${userQuery}"`;
         contents: followupPrompt,
       });
 
-      return finalResponse.text || runLocalOfflineQuery(userQuery, subscriptions);
+      return {
+        text: finalResponse.text || runLocalOfflineQuery(userQuery, subscriptions),
+        source: 'gemini',
+      };
     }
 
-    return response.text || runLocalOfflineQuery(userQuery, subscriptions);
+    return {
+      text: response.text || runLocalOfflineQuery(userQuery, subscriptions),
+      source: 'gemini',
+    };
   } catch (error: any) {
-    console.warn('⚠️ [SubSense Fallback]: Gemini API request failed. Reason:', error?.message || error);
-    return runLocalOfflineQuery(userQuery, subscriptions);
+    const errorMsg = error?.message || String(error);
+    console.warn('⚠️ [SubSense Fallback]: Gemini API request failed. Reason:', errorMsg);
+    return {
+      text: runLocalOfflineQuery(userQuery, subscriptions),
+      source: 'fallback',
+      errorDetails: errorMsg,
+    };
   }
 }

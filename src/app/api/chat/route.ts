@@ -17,8 +17,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Valid query and subscriptions list are required' }, { status: 400 });
     }
 
-    const answer = await processChatQueryWithTools(query, subscriptions, summary);
-    return NextResponse.json({ success: true, answer });
+    const result = await processChatQueryWithTools(query, subscriptions, summary);
+    return NextResponse.json({
+      success: true,
+      answer: result.text,
+      source: result.source,
+      errorDetails: result.errorDetails,
+    });
   } catch (error) {
     console.error('Error in /api/chat route:', error);
     return NextResponse.json({ error: 'Failed to process chat query' }, { status: 500 });

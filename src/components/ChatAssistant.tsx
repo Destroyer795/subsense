@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquare, Send, Bot, User, RefreshCw, Activity } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
 import { SubscriptionItem, DashboardSummary } from '@/types';
 
 interface ChatAssistantProps {
@@ -14,6 +14,8 @@ interface ChatMessage {
   sender: 'user' | 'bot';
   text: string;
   timestamp: string;
+  source?: 'gemini' | 'fallback';
+  errorDetails?: string;
 }
 
 export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
@@ -58,6 +60,8 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
         sender: 'bot',
         text: botAnswer,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        source: data.source,
+        errorDetails: data.errorDetails,
       };
 
       setMessages((prev) => [...prev, botMsg]);
@@ -70,6 +74,8 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
           sender: 'bot',
           text: 'Assistant query failed. Displaying grounded local summary instead.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          source: 'fallback',
+          errorDetails: String(err),
         },
       ]);
     } finally {
@@ -110,21 +116,48 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
                 msg.sender === 'user' ? 'bg-warning text-black' : 'bg-white text-black'
               }`}
             >
-              <div className="flex items-center space-x-1.5 mb-1 text-[10px] uppercase text-black border-b border-black/20 pb-1">
-                {msg.sender === 'user' ? (
-                  <>
-                    <User className="h-3 w-3 stroke-[2.5]" />
-                    <span>You</span>
-                  </>
-                ) : (
-                  <>
-                    <Bot className="h-3 w-3 stroke-[2.5] text-critical" />
-                    <span>SubSense AI</span>
-                  </>
+              <div className="flex items-center justify-between space-x-2 mb-1.5 text-[10px] uppercase text-black border-b border-black/20 pb-1">
+                <div className="flex items-center space-x-1.5">
+                  {msg.sender === 'user' ? (
+                    <>
+                      <User className="h-3 w-3 stroke-[2.5]" />
+                      <span>You</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bot className="h-3 w-3 stroke-[2.5] text-critical" />
+                      <span>SubSense AI</span>
+                    </>
+                  )}
+                </div>
+
+                {msg.sender === 'bot' && msg.source && (
+                  <div className="flex items-center space-x-1 font-mono text-[9px]">
+                    {msg.source === 'gemini' ? (
+                      <span className="border border-black bg-safe px-1.5 py-0.5 text-black font-black uppercase flex items-center gap-1">
+                        <Zap className="h-2.5 w-2.5 fill-black" />
+                        LIVE GEMINI AI
+                      </span>
+                    ) : (
+                      <span
+                        title={msg.errorDetails || 'Offline Fallback Engine'}
+                        className="border border-black bg-warning px-1.5 py-0.5 text-black font-bold uppercase flex items-center gap-1 cursor-help"
+                      >
+                        <AlertTriangle className="h-2.5 w-2.5 stroke-[2.5]" />
+                        OFFLINE FALLBACK
+                      </span>
+                    )}
+                  </div>
                 )}
-                <span className="ml-auto font-mono text-[9px]">{msg.timestamp}</span>
+
+                <span className="font-mono text-[9px]">{msg.timestamp}</span>
               </div>
               <p className="whitespace-pre-wrap">{msg.text}</p>
+              {msg.errorDetails && (
+                <div className="mt-2 text-[9px] font-mono text-red-600 border-t border-black/10 pt-1 font-normal italic">
+                  Reason: {msg.errorDetails}
+                </div>
+              )}
             </div>
           </div>
         ))}
