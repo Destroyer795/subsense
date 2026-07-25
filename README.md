@@ -35,7 +35,21 @@ Existing budget trackers fail because:
 
 ---
 
-## 🏗️ System Architecture
+## ⚡ SubSense v2 Feature Expansions
+
+1. **Grounded Gemini Chat Assistant (Tool Calling)**:
+   - Live interactive assistant where users can ask natural language questions about their own computed leak report (e.g. *"Why is Netflix flagged?"*, *"Which subscription should I cancel first?"*, *"How much do I save if I cancel all high leak subs?"*).
+   - Powered by Gemini function calling tool declarations (`getSubscriptionByName`, `getTopLeaksByScore`, `computeSavingsIfCancelled`, `getCategorySpendBreakdown`).
+2. **12-Month Cumulative Waste Forecast**:
+   - Forward extrapolation engine projecting price-drift trends forward over the next 12 billing cycles, rendered in a high-contrast Recharts AreaChart.
+3. **Category Price Benchmarking**:
+   - Compares detected subscriptions against typical Indian market category averages (`OTT`, `Food`, `SaaS`, `Fitness`, `Cloud`), flagging whether spend sits above, at, or below market baselines.
+4. **Exportable PDF Executive Report**:
+   - Instant 1-click client-side export generating a formatted executive PDF report summary for offline sharing or printing.
+
+---
+
+## 🏗️ System Architecture & Tool-Calling Flow
 
 ```mermaid
 graph TD
@@ -54,6 +68,29 @@ graph TD
     
     J --> K[Interactive Cancellation Email Modal]
     I --> L[What-If Savings Simulator]
+    I --> M[12-Month Leak Forecast & Category Benchmarks]
+```
+
+### Grounded Gemini Chat Assistant Tool-Calling Flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant ChatUI as Neobrutalist Chat UI
+    participant Route as /api/chat Endpoint
+    participant Gemini as Gemini 2.5 API
+    participant Tools as Pure Query Tools
+
+    User->>ChatUI: Ask Question e.g. "Why is Netflix flagged?"
+    ChatUI->>Route: POST query + in-memory report data
+    Route->>Gemini: Send prompt + FunctionDeclarations
+    Gemini-->>Route: Function Call Request: getSubscriptionByName("Netflix")
+    Route->>Tools: Execute getSubscriptionByName("Netflix", dataset)
+    Tools-->>Route: Return grounded JSON data
+    Route->>Gemini: Send Tool Output Data
+    Gemini-->>Route: Synthesized Grounded Response
+    Route-->>ChatUI: Display Answer to User
 ```
 
 ---
