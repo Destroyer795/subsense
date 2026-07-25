@@ -5,6 +5,7 @@ import { ParsedTransaction, MerchantCluster } from '../../types';
 function cleanToken(str: string): string {
   return str
     .toUpperCase()
+    .replace(/[\*\.\-_]/g, ' ')
     .replace(/[^A-Z0-9\s]/g, '')
     .replace(/\b(INC|LTD|PVT|LIMITED|INDIA|INDIA P LTD|SERVICES|CORP|PAY|VPA|CO|MEDIA|BILL)\b/g, '')
     .replace(/\s+/g, ' ')
@@ -48,6 +49,14 @@ export function areMerchantsSimilar(name1: string, name2: string): boolean {
 
   // Prefix match (e.g. NETFLIX vs NETFLIX INDIA)
   if (norm1.startsWith(norm2) || norm2.startsWith(norm1)) return true;
+
+  const t1 = norm1.split(' ').filter(Boolean);
+  const t2 = norm2.split(' ').filter(Boolean);
+
+  // Primary brand match (e.g. NETFLIX ENTERTAINMENT vs NETFLIX COM)
+  if (t1.length > 0 && t2.length > 0 && t1[0] === t2[0] && t1[0].length >= 4) {
+    return true;
+  }
 
   // Token similarity overlap
   const tokenSim = getTokenSimilarity(name1, name2);

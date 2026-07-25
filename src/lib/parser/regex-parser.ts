@@ -37,14 +37,14 @@ function cleanMerchantName(merchantRaw: string): string {
   let cleaned = merchantRaw
     .replace(/^VPA\s+/i, '')
     .replace(/^INF\*/i, '')
-    .replace(/\*$/, '')
-    .replace(/Ref[:\s].*$/i, '')
-    .replace(/UPI[:\s].*$/i, '')
+    .replace(/[\.\*]+$/, '')
+    .replace(/\s*Ref[:\s].*$/i, '')
+    .replace(/\s*UPI[:\s].*$/i, '')
     .trim();
 
   // If ends with date or numbers
   cleaned = cleaned.replace(/\s+\d{2}[-/]\d{2}[-/]\d{2,4}$/, '').trim();
-  return cleaned;
+  return cleaned.replace(/[\.\*]+$/, '').trim();
 }
 
 export function parseTransactionRegex(rawText: string, id: string): ParsedTransaction | null {
@@ -88,7 +88,7 @@ export function parseTransactionRegex(rawText: string, id: string): ParsedTransa
     const amtMatch = rawText.match(/Rs\.?\s*([\d,]+\.?\d*)/i) || rawText.match(/INR\s*([\d,]+\.?\d*)/i);
     if (amtMatch) amount = parseFloat(amtMatch[1].replace(/,/g, ''));
 
-    const merchantMatch = rawText.match(/Info:\s*INF\*([^\*]+)\*/i) ||
+    const merchantMatch = rawText.match(/Info:\s*INF\*([^\.]+?)(?=\*\.|\s*UPI|\.|$)/i) ||
                           rawText.match(/payment\s+to\s+([^Ref]+?)(?=\s*\.|\s*Ref|$)/i) ||
                           rawText.match(/for\s+([^Ref]+?)(?=\s*\.|\s*Ref|$)/i);
     if (merchantMatch) merchant = cleanMerchantName(merchantMatch[1]);
