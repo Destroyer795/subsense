@@ -100,13 +100,15 @@ export async function processChatQueryWithTools(
   summary: DashboardSummary
 ): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
-  if (!apiKey) {
+  if (!apiKey || apiKey.includes('your_gemini_api_key')) {
+    console.warn('⚠️ [SubSense AI]: No valid GEMINI_API_KEY configured. Running offline grounded query engine.');
     return runLocalOfflineQuery(userQuery, subscriptions);
   }
 
   try {
+    console.log(`⚡ [SubSense AI]: Querying Gemini API (${modelName}) for question: "${userQuery}"`);
     const ai = new GoogleGenAI({ apiKey });
 
     const systemPrompt = `You are SubSense AI, an enterprise-grade financial analyst for recurring subscription leaks.
@@ -171,8 +173,8 @@ User Question: "${userQuery}"`;
     }
 
     return response.text || runLocalOfflineQuery(userQuery, subscriptions);
-  } catch (error) {
-    console.warn('Gemini chat tool error/timeout. Falling back to grounded local query:', error);
+  } catch (error: any) {
+    console.warn('⚠️ [SubSense Fallback]: Gemini API request failed. Reason:', error?.message || error);
     return runLocalOfflineQuery(userQuery, subscriptions);
   }
 }
