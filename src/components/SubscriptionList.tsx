@@ -7,18 +7,16 @@ import {
   EmailDraft,
 } from '@/types';
 import {
-  AlertTriangle,
+  ShieldAlert,
   ChevronDown,
   ChevronUp,
-  Sparkles,
   Mail,
   RefreshCw,
   Info,
-  Calendar,
   Layers,
-  ArrowUpRight,
   UserX,
   UserCheck,
+  AlertCircle,
 } from 'lucide-react';
 import { EmailModal } from './EmailModal';
 
@@ -30,7 +28,6 @@ interface SubscriptionListProps {
 export function SubscriptionList({ subscriptions, onToggleDormancy }: SubscriptionListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loadingAiId, setLoadingAiId] = useState<string | null>(null);
-  const [recommendations, setRecommendations] = useState<Record<string, GeminiRecommendation>>({});
   const [emailModalState, setEmailModalState] = useState<{
     isOpen: boolean;
     draft: EmailDraft | null;
@@ -66,27 +63,27 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
 
   return (
     <div className="w-full space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between border-b-4 border-black pb-4">
         <div>
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            <Layers className="h-5 w-5 text-cyan-400" />
-            <span>Detected Recurring Subscriptions ({subscriptions.length})</span>
+          <h3 className="text-xl font-black uppercase text-black flex items-center gap-2">
+            <Layers className="h-6 w-6 text-black stroke-[2.5]" />
+            <span>Detected Subscriptions ({subscriptions.length})</span>
           </h3>
-          <p className="text-xs text-slate-400">
-            Sorted by Composite Leak Score. Expand any subscription to view formula breakdown and AI action draft.
+          <p className="text-xs font-bold uppercase tracking-wide text-black mt-1">
+            Sorted by Composite Leak Score. Click any subscription to expand formula breakdown and generate action draft.
           </p>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {subscriptions.map((sub) => {
           const isExpanded = expandedId === sub.id;
           const score = sub.leakScore.totalScore;
 
-          // Color coded score badge
-          let scoreBg = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-          if (score >= 60) scoreBg = 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-          else if (score >= 35) scoreBg = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+          // Color coded score badge in Neobrutal style
+          let scoreBg = 'bg-safe text-black';
+          if (score >= 60) scoreBg = 'bg-critical text-white';
+          else if (score >= 35) scoreBg = 'bg-warning text-black';
 
           const extractionMethod = sub.transactions[0]?.extractionMethod || 'regex';
           const confidence = sub.transactions[0]?.confidenceScore || 0.9;
@@ -94,10 +91,8 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
           return (
             <div
               key={sub.id}
-              className={`rounded-2xl border transition-all duration-200 ${
-                isExpanded
-                  ? 'border-cyan-500/50 bg-slate-900 shadow-xl'
-                  : 'border-slate-800 bg-slate-900/60 hover:border-slate-700'
+              className={`border-4 border-black bg-white transition-all duration-75 ${
+                isExpanded ? 'shadow-brutal-lg' : 'shadow-brutal hover:bg-canvas'
               }`}
             >
               {/* Summary Row Header */}
@@ -107,48 +102,50 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
               >
                 <div className="flex items-center space-x-4">
                   {/* Leak Score Badge */}
-                  <div className={`flex flex-col items-center justify-center rounded-xl border px-3 py-2 ${scoreBg}`}>
-                    <span className="text-xs uppercase font-semibold text-slate-400">Leak Score</span>
-                    <span className="text-xl font-extrabold font-mono">{score}</span>
+                  <div className={`flex flex-col items-center justify-center border-2 border-black px-3 py-1.5 shadow-brutal-sm ${scoreBg}`}>
+                    <span className="text-[9px] uppercase font-mono font-bold tracking-wider">
+                      Leak Score
+                    </span>
+                    <span className="text-2xl font-black font-mono">{score}</span>
                   </div>
 
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h4 className="text-base font-bold text-white">{sub.merchantName}</h4>
+                      <h4 className="text-lg font-black uppercase text-black">{sub.merchantName}</h4>
 
                       {/* Badges */}
                       {sub.priceDrift.isHikeDetected && (
-                        <span className="flex items-center space-x-1 rounded-md bg-rose-500/10 px-2 py-0.5 text-[10px] font-bold text-rose-400 border border-rose-500/20">
-                          <AlertTriangle className="h-3 w-3" />
+                        <span className="flex items-center space-x-1 border border-black bg-critical px-2 py-0.5 text-[10px] font-mono font-bold text-white shadow-brutal-sm uppercase">
+                          <AlertCircle className="h-3 w-3 stroke-[2.5]" />
                           <span>+{sub.priceDrift.percentageChange}% Hike</span>
                         </span>
                       )}
 
                       {sub.isDormant && (
-                        <span className="flex items-center space-x-1 rounded-md bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-400 border border-purple-500/20">
-                          <UserX className="h-3 w-3" />
+                        <span className="flex items-center space-x-1 border border-black bg-warning px-2 py-0.5 text-[10px] font-mono font-bold text-black shadow-brutal-sm uppercase">
+                          <UserX className="h-3 w-3 stroke-[2.5]" />
                           <span>Dormant</span>
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-1 flex items-center space-x-3 text-xs text-slate-400">
-                      <span className="text-slate-300 font-medium">{sub.category}</span>
+                    <div className="mt-1 flex items-center space-x-3 text-xs font-mono font-bold text-black uppercase">
+                      <span>{sub.category}</span>
                       <span>•</span>
-                      <span className="capitalize">{sub.billingInterval} billing</span>
+                      <span>{sub.billingInterval} billing</span>
                       <span>•</span>
-                      <span className="font-mono text-slate-400">{sub.transactionCount} charges detected</span>
+                      <span>{sub.transactionCount} Charges</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end space-x-6">
-                  <div className="text-right">
-                    <div className="text-base font-extrabold font-mono text-white">
+                  <div className="text-right font-mono">
+                    <div className="text-lg font-black text-black">
                       ₹{sub.currentAmount.toLocaleString()}
-                      <span className="text-xs font-normal text-slate-400">/mo</span>
+                      <span className="text-xs font-normal text-black">/mo</span>
                     </div>
-                    <div className="text-[10px] text-slate-500">
+                    <div className="text-[10px] font-bold text-black uppercase">
                       ₹{(sub.currentAmount * 12).toLocaleString()}/yr
                     </div>
                   </div>
@@ -160,60 +157,58 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
                       onToggleDormancy(sub.id);
                     }}
                     title="Toggle active vs dormant status"
-                    className={`flex items-center space-x-1 rounded-lg px-2.5 py-1.5 text-xs font-medium border transition-all ${
-                      sub.isDormant
-                        ? 'border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20'
-                        : 'border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
-                    }`}
+                    className="flex items-center space-x-1 border-2 border-black bg-white px-3 py-1.5 text-xs font-mono font-bold text-black shadow-brutal-sm hover:bg-warning active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all uppercase"
                   >
-                    {sub.isDormant ? <UserX className="h-3.5 w-3.5" /> : <UserCheck className="h-3.5 w-3.5" />}
+                    {sub.isDormant ? <UserX className="h-3.5 w-3.5 stroke-[2.5]" /> : <UserCheck className="h-3.5 w-3.5 stroke-[2.5]" />}
                     <span className="hidden md:inline">{sub.isDormant ? 'Mark Active' : 'Mark Dormant'}</span>
                   </button>
 
-                  <div className="text-slate-400">
-                    {isExpanded ? <ChevronUp className="h-5 w-5 text-cyan-400" /> : <ChevronDown className="h-5 w-5" />}
+                  <div className="border border-black bg-white p-1 shadow-brutal-sm text-black">
+                    {isExpanded ? <ChevronUp className="h-5 w-5 stroke-[2.5]" /> : <ChevronDown className="h-5 w-5 stroke-[2.5]" />}
                   </div>
                 </div>
               </div>
 
               {/* Expandable Details Drawer */}
               {isExpanded && (
-                <div className="border-t border-slate-800/80 bg-slate-950/60 p-6 space-y-6">
+                <div className="border-t-4 border-black bg-canvas p-6 space-y-6">
                   {/* Formula Breakdown & Extraction Evidence */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Sub-score breakdown */}
-                    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h5 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                          <Info className="h-4 w-4 text-cyan-400" />
-                          <span>Leak Score Breakdown (Formula)</span>
+                    <div className="border-2 border-black bg-white p-4 space-y-3 shadow-brutal">
+                      <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                        <h5 className="text-xs font-mono font-bold uppercase text-black flex items-center gap-1.5">
+                          <Info className="h-4 w-4 stroke-[2.5]" />
+                          <span>Leak Score Formula Breakdown</span>
                         </h5>
-                        <span className="text-xs font-mono font-bold text-cyan-400">{score}/100</span>
+                        <span className="border border-black bg-black px-2 py-0.5 text-xs font-mono font-black text-white">
+                          {score}/100
+                        </span>
                       </div>
 
-                      <div className="space-y-2 text-xs">
+                      <div className="space-y-2 text-xs font-mono font-bold text-black">
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Dormancy Score (40% weight):</span>
-                          <span className="font-mono text-purple-400 font-bold">{sub.leakScore.dormancyScore}</span>
+                          <span>Dormancy Score (40% weight):</span>
+                          <span className="border border-black bg-warning px-1.5 py-0.5">{sub.leakScore.dormancyScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Price Drift Score (30% weight):</span>
-                          <span className="font-mono text-rose-400 font-bold">{sub.leakScore.priceDriftScore}</span>
+                          <span>Price Drift Score (30% weight):</span>
+                          <span className="border border-black bg-critical text-white px-1.5 py-0.5">{sub.leakScore.priceDriftScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Category Redundancy (20% weight):</span>
-                          <span className="font-mono text-amber-400 font-bold">{sub.leakScore.redundancyScore}</span>
+                          <span>Category Redundancy (20% weight):</span>
+                          <span className="border border-black bg-warning px-1.5 py-0.5">{sub.leakScore.redundancyScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-slate-400">Spend Share Score (10% weight):</span>
-                          <span className="font-mono text-sky-400 font-bold">{sub.leakScore.costShareScore}</span>
+                          <span>Spend Share Score (10% weight):</span>
+                          <span className="border border-black bg-safe px-1.5 py-0.5">{sub.leakScore.costShareScore}</span>
                         </div>
                       </div>
 
-                      <div className="pt-2 border-t border-slate-800 space-y-1">
+                      <div className="pt-2 border-t-2 border-black space-y-1">
                         {sub.leakScore.explanation.map((exp, idx) => (
-                          <div key={idx} className="flex items-center space-x-1.5 text-[11px] text-slate-400">
-                            <span className="text-cyan-400">•</span>
+                          <div key={idx} className="flex items-center space-x-1.5 text-[11px] font-mono font-bold text-black">
+                            <span>•</span>
                             <span>{exp}</span>
                           </div>
                         ))}
@@ -221,26 +216,25 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
                     </div>
 
                     {/* Extraction Evidence */}
-                    <div className="rounded-xl border border-slate-800 bg-slate-900 p-4 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h5 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                          Extraction Evidence & History
+                    <div className="border-2 border-black bg-white p-4 space-y-3 shadow-brutal">
+                      <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                        <h5 className="text-xs font-mono font-bold uppercase text-black">
+                          Extraction Evidence & Logs
                         </h5>
-                        <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-mono text-slate-300 border border-slate-700">
-                          Method: <strong className="text-cyan-400 uppercase">{extractionMethod}</strong> (
-                          {Math.round(confidence * 100)}% conf)
+                        <span className="border border-black bg-warning px-2 py-0.5 text-[10px] font-mono font-bold text-black uppercase">
+                          Method: {extractionMethod} ({Math.round(confidence * 100)}% conf)
                         </span>
                       </div>
 
-                      <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                         {sub.transactions.map((t) => (
                           <div
                             key={t.id}
-                            className="flex items-center justify-between rounded bg-slate-950 px-2.5 py-1.5 text-xs border border-slate-800/50"
+                            className="flex items-center justify-between border border-black bg-canvas px-2.5 py-1 text-xs font-mono font-bold text-black"
                           >
-                            <span className="font-mono text-slate-400">{t.date}</span>
-                            <span className="truncate max-w-[150px] text-slate-300">{t.merchant}</span>
-                            <span className="font-mono font-semibold text-white">₹{t.amount}</span>
+                            <span>{t.date}</span>
+                            <span className="truncate max-w-[150px] uppercase">{t.merchant}</span>
+                            <span>₹{t.amount}</span>
                           </div>
                         ))}
                       </div>
@@ -248,19 +242,19 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
                   </div>
 
                   {/* Gemini AI Action Box */}
-                  <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="border-2 border-black bg-warning p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-brutal">
                     <div>
                       <div className="flex items-center space-x-2">
-                        <Sparkles className="h-4 w-4 text-cyan-400" />
-                        <h5 className="text-sm font-bold text-white">
+                        <ShieldAlert className="h-5 w-5 text-black stroke-[2.5]" />
+                        <h5 className="text-sm font-black uppercase text-black">
                           Gemini Recommended Action
                         </h5>
                       </div>
-                      <p className="text-xs text-cyan-200/80 mt-1">
+                      <p className="text-xs font-bold text-black mt-1 uppercase">
                         {sub.isDormant
                           ? `Flagged as dormant. Cancel to immediately save ₹${(sub.currentAmount * 12).toLocaleString()}/yr.`
                           : sub.priceDrift.isHikeDetected
-                          ? `Price increased by +${sub.priceDrift.percentageChange}%. Consider requesting a tier downgrade.`
+                          ? `Price increased by +${sub.priceDrift.percentageChange}%. Consider requesting a plan downgrade.`
                           : `Active subscription billing ₹${sub.currentAmount}/mo cleanly.`}
                       </p>
                     </div>
@@ -269,18 +263,18 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
                       <button
                         onClick={() => handleGenerateEmail(sub, sub.priceDrift.isHikeDetected ? 'downgrade' : 'cancel')}
                         disabled={loadingAiId === sub.id}
-                        className="flex items-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-cyan-500/20 hover:from-cyan-400 hover:to-indigo-500 transition-all disabled:opacity-50"
+                        className="flex items-center space-x-2 border-2 border-black bg-critical px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-white shadow-brutal active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-75 disabled:opacity-50"
                       >
                         {loadingAiId === sub.id ? (
                           <>
-                            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                            <RefreshCw className="h-4 w-4 animate-spin stroke-[2.5]" />
                             <span>Drafting Email via Gemini...</span>
                           </>
                         ) : (
                           <>
-                            <Mail className="h-3.5 w-3.5" />
+                            <Mail className="h-4 w-4 stroke-[2.5]" />
                             <span>
-                              Generate {sub.priceDrift.isHikeDetected ? 'Downgrade' : 'Cancellation'} Email Draft
+                              Draft {sub.priceDrift.isHikeDetected ? 'Downgrade' : 'Cancellation'} Email
                             </span>
                           </>
                         )}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Copy, Check, Send, Mail, Sparkles } from 'lucide-react';
+import { X, Copy, Check, Send, Activity } from 'lucide-react';
 import { EmailDraft } from '@/types';
 
 interface EmailModalProps {
@@ -28,77 +28,81 @@ export function EmailModal({ draft, isOpen, onClose, merchantName }: EmailModalP
   )}&body=${encodeURIComponent(draft.body)}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-2xl border-4 border-black bg-white shadow-brutal-lg overflow-hidden">
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4 bg-slate-950">
+        <div className="flex items-center justify-between border-b-4 border-black bg-warning px-6 py-4">
           <div className="flex items-center space-x-2">
-            <Sparkles className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-base font-bold text-white">
-              Gemini AI-Drafted Cancellation Email for {merchantName}
+            <Activity className="h-6 w-6 text-black stroke-[2.5]" />
+            <h3 className="text-base font-black uppercase text-black">
+              Gemini AI-Drafted Action Email: {merchantName}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="border-2 border-black bg-white p-1 text-black shadow-brutal-sm hover:bg-canvas active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
           >
-            <X className="h-5 w-5" />
+            <X className="h-5 w-5 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto bg-canvas">
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Recipient Email Hint
+            <label className="text-xs font-mono font-bold text-black uppercase tracking-wider">
+              Recipient Email Address
             </label>
-            <div className="mt-1 rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-mono text-cyan-300">
+            <div className="mt-1 border-2 border-black bg-white px-3 py-2 text-xs font-mono font-bold text-black shadow-brutal-sm">
               {draft.recipientHint}
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-mono font-bold text-black uppercase tracking-wider">
               Subject Line
             </label>
-            <div className="mt-1 rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-medium text-white">
+            <div className="mt-1 border-2 border-black bg-white px-3 py-2 text-xs font-mono font-bold text-black shadow-brutal-sm">
               {draft.subject}
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Email Body
+            <label className="text-xs font-mono font-bold text-black uppercase tracking-wider">
+              Generated Email Body
             </label>
-            <div className="mt-1 whitespace-pre-wrap rounded-lg border border-slate-800 bg-slate-950 p-4 text-xs font-mono text-slate-300 leading-relaxed">
+            <div className="mt-1 whitespace-pre-wrap border-2 border-black bg-white p-4 text-xs font-mono text-black leading-relaxed shadow-brutal-sm">
               {draft.body}
             </div>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-800 bg-slate-950 px-6 py-4 gap-3">
-          <span className="text-xs text-slate-500">
-            Copy text or launch directly in your default email client.
+        <div className="flex flex-col sm:flex-row items-center justify-between border-t-4 border-black bg-white px-6 py-4 gap-4">
+          <span className="text-xs font-mono font-bold uppercase text-black">
+            Copy text or launch default mail client.
           </span>
 
           <div className="flex items-center space-x-3 w-full sm:w-auto">
             <button
               onClick={handleCopy}
-              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-700 transition-all"
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 border-2 border-black bg-white px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-black shadow-brutal active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-75"
             >
-              {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
-              <span>{copied ? 'Copied to Clipboard!' : 'Copy Email'}</span>
+              {copied ? (
+                <Check className="h-4 w-4 text-safe stroke-[2.5]" />
+              ) : (
+                <Copy className="h-4 w-4 stroke-[2.5]" />
+              )}
+              <span>{copied ? 'Copied!' : 'Copy Email'}</span>
             </button>
 
             <a
               href={mailtoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-cyan-500/20 hover:from-cyan-400 hover:to-indigo-500 transition-all"
+              className="flex-1 sm:flex-none flex items-center justify-center space-x-2 border-2 border-black bg-critical px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider text-white shadow-brutal active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-75"
             >
-              <Send className="h-4 w-4" />
-              <span>Open in Email App</span>
+              <Send className="h-4 w-4 stroke-[2.5]" />
+              <span>Open in Email</span>
             </a>
           </div>
         </div>

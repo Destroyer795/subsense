@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { SubscriptionItem } from '@/types';
-import { Calculator, CheckCircle2, TrendingDown, DollarSign, Sparkles } from 'lucide-react';
+import { Calculator, CheckSquare, Square, TrendingDown, Sliders } from 'lucide-react';
 
 interface WhatIfSimulatorProps {
   subscriptions: SubscriptionItem[];
@@ -32,15 +32,15 @@ export function WhatIfSimulator({ subscriptions, totalMonthlySpend }: WhatIfSimu
     totalMonthlySpend > 0 ? Math.round((monthlySavings / totalMonthlySpend) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 backdrop-blur-xl shadow-xl space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <div className="border-4 border-black bg-white p-6 shadow-brutal-lg space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-4">
         <div>
           <div className="flex items-center space-x-2">
-            <Calculator className="h-5 w-5 text-emerald-400" />
-            <h3 className="text-lg font-bold text-white">What-If Savings Simulator</h3>
+            <Calculator className="h-6 w-6 text-black stroke-[2.5]" />
+            <h3 className="text-xl font-black uppercase text-black">What-If Savings Simulator</h3>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Select subscriptions to simulate cancellation and see instant projected monthly/annual savings.
+          <p className="text-xs font-bold uppercase text-black mt-1 tracking-wide">
+            Multi-select subscriptions to simulate cancellation and project instant monthly/annual savings.
           </p>
         </div>
 
@@ -53,13 +53,13 @@ export function WhatIfSimulator({ subscriptions, totalMonthlySpend }: WhatIfSimu
                   .map((s) => s.id)
               )
             }
-            className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-700 transition-all border border-slate-700"
+            className="border-2 border-black bg-warning px-3 py-1.5 text-xs font-mono font-bold uppercase text-black shadow-brutal-sm active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
           >
-            Select High-Leak Subs
+            Select High-Leak
           </button>
           <button
             onClick={() => setSelectedToCancel([])}
-            className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-400 hover:bg-slate-700 transition-all border border-slate-700"
+            className="border-2 border-black bg-white px-3 py-1.5 text-xs font-mono font-bold uppercase text-black shadow-brutal-sm hover:bg-canvas active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
           >
             Clear All
           </button>
@@ -68,51 +68,55 @@ export function WhatIfSimulator({ subscriptions, totalMonthlySpend }: WhatIfSimu
 
       {/* Dynamic Savings Impact Metric Banner */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+        <div className="border-2 border-black bg-safe p-4 shadow-brutal">
+          <span className="text-xs font-mono font-bold uppercase text-black">
             Projected Monthly Savings
           </span>
-          <div className="mt-1 text-2xl font-extrabold font-mono text-emerald-300">
+          <div className="mt-1 text-3xl font-black font-mono text-black">
             ₹{monthlySavings.toLocaleString()}
           </div>
-          <p className="text-[11px] text-emerald-400/80 mt-1 flex items-center gap-1">
-            <TrendingDown className="h-3.5 w-3.5" />
-            <span>{reductionPercentage}% total spend reduction</span>
+          <p className="text-xs font-mono font-bold text-black mt-1 flex items-center gap-1 uppercase">
+            <TrendingDown className="h-4 w-4 stroke-[2.5]" />
+            <span>{reductionPercentage}% Spend Reduction</span>
           </p>
         </div>
 
-        <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+        <div className="border-2 border-black bg-warning p-4 shadow-brutal">
+          <span className="text-xs font-mono font-bold uppercase text-black">
             Projected Annual Savings
           </span>
-          <div className="mt-1 text-2xl font-extrabold font-mono text-cyan-300">
+          <div className="mt-1 text-3xl font-black font-mono text-black">
             ₹{annualSavings.toLocaleString()}
           </div>
-          <p className="text-[11px] text-cyan-400/80 mt-1">Directly added back to cash balance</p>
+          <p className="text-xs font-mono font-bold text-black mt-1 uppercase">
+            Recaptured Cash Balance
+          </p>
         </div>
 
-        <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
-          <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+        <div className="border-2 border-black bg-canvas p-4 shadow-brutal">
+          <span className="text-xs font-mono font-bold uppercase text-black">
             New Monthly Spend Target
           </span>
-          <div className="mt-1 text-2xl font-extrabold font-mono text-purple-300">
+          <div className="mt-1 text-3xl font-black font-mono text-black">
             ₹{newMonthlySpend.toLocaleString()}
           </div>
-          <p className="text-[11px] text-purple-400/80 mt-1">
-            {selectedToCancel.length} subscription(s) marked for cancellation
+          <p className="text-xs font-mono font-bold text-black mt-1 uppercase">
+            {selectedToCancel.length} Subscriptions Marked
           </p>
         </div>
       </div>
 
       {/* Progress Bar visual */}
       <div>
-        <div className="flex justify-between text-xs text-slate-400 mb-1.5 font-medium">
-          <span>Spend Reduction Progress</span>
-          <span className="text-emerald-400 font-bold">{reductionPercentage}% Cut</span>
+        <div className="flex justify-between text-xs font-mono font-bold text-black mb-1.5 uppercase">
+          <span>Spend Cut Progress</span>
+          <span className="border border-black bg-safe px-2 py-0.5 shadow-brutal-sm">
+            {reductionPercentage}% Cut
+          </span>
         </div>
-        <div className="h-3 w-full rounded-full bg-slate-950 overflow-hidden p-0.5 border border-slate-800">
+        <div className="h-4 w-full border-2 border-black bg-white p-0.5 shadow-brutal-sm">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-cyan-500 to-indigo-500 transition-all duration-300"
+            className="h-full bg-critical border-r-2 border-black transition-all duration-150"
             style={{ width: `${Math.min(100, reductionPercentage)}%` }}
           />
         </div>
@@ -126,32 +130,30 @@ export function WhatIfSimulator({ subscriptions, totalMonthlySpend }: WhatIfSimu
             <div
               key={sub.id}
               onClick={() => toggleSelect(sub.id)}
-              className={`cursor-pointer rounded-xl border p-3 flex items-center justify-between transition-all ${
+              className={`cursor-pointer border-2 border-black p-3 flex items-center justify-between transition-all duration-75 ${
                 isSelected
-                  ? 'border-emerald-500/60 bg-emerald-500/10 shadow-lg shadow-emerald-500/5'
-                  : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                  ? 'bg-warning shadow-brutal'
+                  : 'bg-white shadow-brutal-sm hover:bg-canvas'
               }`}
             >
               <div className="flex items-center space-x-3">
-                <div
-                  className={`flex h-5 w-5 items-center justify-center rounded border transition-all ${
-                    isSelected
-                      ? 'border-emerald-500 bg-emerald-500 text-slate-950'
-                      : 'border-slate-700 bg-slate-900'
-                  }`}
-                >
-                  {isSelected && <CheckCircle2 className="h-4 w-4" />}
+                <div className="text-black">
+                  {isSelected ? (
+                    <CheckSquare className="h-5 w-5 stroke-[2.5]" />
+                  ) : (
+                    <Square className="h-5 w-5 stroke-[2.5]" />
+                  )}
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold text-white">{sub.merchantName}</h4>
-                  <p className="text-[10px] text-slate-400">{sub.category}</p>
+                  <h4 className="text-xs font-black uppercase text-black">{sub.merchantName}</h4>
+                  <p className="text-[10px] font-mono font-bold text-black uppercase">{sub.category}</p>
                 </div>
               </div>
 
-              <div className="text-right font-mono text-xs font-bold text-white">
+              <div className="text-right font-mono text-xs font-black text-black">
                 ₹{sub.currentAmount}
-                <span className="text-[9px] font-normal text-slate-500">/mo</span>
+                <span className="text-[9px] font-normal text-black">/mo</span>
               </div>
             </div>
           );

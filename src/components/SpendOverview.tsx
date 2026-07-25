@@ -22,12 +22,12 @@ interface SpendOverviewProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'OTT & Streaming': '#38BDF8', // Cyan
-  'Developer & SaaS': '#A855F7', // Purple
-  'Fitness & Health': '#10B981', // Emerald
-  'Food & Dining': '#F59E0B', // Amber
-  'Cloud Storage': '#3B82F6', // Blue
-  'Gaming & Media': '#EC4899', // Pink
+  'OTT & Streaming': '#FF3366', // Critical Red/Pink
+  'Developer & SaaS': '#3366FF', // Accent Blue
+  'Fitness & Health': '#00E676', // Safe Green
+  'Food & Dining': '#FFDE59', // Warning Yellow
+  'Cloud Storage': '#000000', // Black
+  'Gaming & Media': '#A855F7', // Purple
   'Utilities & Services': '#64748B', // Slate
   Other: '#94A3B8',
 };
@@ -37,7 +37,7 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
     name: item.category,
     value: item.spend,
     count: item.count,
-    color: CATEGORY_COLORS[item.category] || '#94A3B8',
+    color: CATEGORY_COLORS[item.category] || '#000000',
   }));
 
   const trendData = summary.monthlySpendTrend.map((item) => ({
@@ -49,14 +49,16 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Chart 1: Donut Category Breakdown */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 backdrop-blur-xl">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="border-4 border-black bg-white p-6 shadow-brutal-lg">
+        <div className="flex items-center justify-between pb-4 border-b-4 border-black">
           <div className="flex items-center space-x-2">
-            <PieIcon className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-base font-bold text-white">Category Spend Distribution</h3>
+            <PieIcon className="h-6 w-6 text-black stroke-[2.5]" />
+            <h3 className="text-base font-black uppercase text-black">
+              Category Spend Distribution
+            </h3>
           </div>
-          <span className="text-xs text-slate-400 font-mono">
-            {summary.categoryBreakdown.length} active categories
+          <span className="border-2 border-black bg-canvas px-2 py-0.5 text-xs font-mono font-bold uppercase text-black shadow-brutal-sm">
+            {summary.categoryBreakdown.length} Categories
           </span>
         </div>
 
@@ -68,13 +70,18 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
                   data={pieData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={55}
-                  outerRadius={80}
-                  paddingAngle={4}
+                  innerRadius={50}
+                  outerRadius={75}
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="#0F172A" strokeWidth={2} />
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      stroke="#000000"
+                      strokeWidth={2}
+                    />
                   ))}
                 </Pie>
                 <Tooltip
@@ -82,9 +89,9 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="rounded-lg border border-slate-700 bg-slate-900 p-2.5 shadow-xl text-xs">
-                          <p className="font-bold text-white">{data.name}</p>
-                          <p className="text-cyan-400 font-mono mt-1">
+                        <div className="border-2 border-black bg-white p-3 shadow-brutal text-xs font-mono">
+                          <p className="font-black uppercase text-black">{data.name}</p>
+                          <p className="font-bold text-black mt-1">
                             ₹{data.value.toLocaleString()} / mo ({data.count} subs)
                           </p>
                         </div>
@@ -99,12 +106,18 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
 
           <div className="w-full md:w-1/2 space-y-2">
             {pieData.map((item) => (
-              <div key={item.name} className="flex items-center justify-between text-xs">
+              <div
+                key={item.name}
+                className="flex items-center justify-between border-2 border-black p-2 bg-white shadow-brutal-sm text-xs font-mono font-bold text-black"
+              >
                 <div className="flex items-center space-x-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-slate-300 font-medium">{item.name}</span>
+                  <span
+                    className="h-3 w-3 border border-black"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  <span className="truncate max-w-[120px] uppercase">{item.name}</span>
                 </div>
-                <span className="font-mono text-slate-400">₹{item.value.toLocaleString()}</span>
+                <span>₹{item.value.toLocaleString()}</span>
               </div>
             ))}
           </div>
@@ -112,14 +125,16 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
       </div>
 
       {/* Chart 2: Monthly Spend Trend Line Chart */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-6 backdrop-blur-xl">
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+      <div className="border-4 border-black bg-white p-6 shadow-brutal-lg">
+        <div className="flex items-center justify-between pb-4 border-b-4 border-black">
           <div className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-purple-400" />
-            <h3 className="text-base font-bold text-white">Monthly Spend Trend & Price Hikes</h3>
+            <TrendingUp className="h-6 w-6 text-black stroke-[2.5]" />
+            <h3 className="text-base font-black uppercase text-black">
+              Monthly Spend Trend & Hikes
+            </h3>
           </div>
-          <span className="flex items-center space-x-1 text-xs text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-            <AlertTriangle className="h-3 w-3" />
+          <span className="flex items-center space-x-1 border-2 border-black bg-critical px-2 py-0.5 text-xs font-mono font-bold text-white shadow-brutal-sm uppercase">
+            <AlertTriangle className="h-3.5 w-3.5 stroke-[2.5]" />
             <span>Price Hike Markers</span>
           </span>
         </div>
@@ -127,20 +142,33 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
         <div className="mt-4 h-56 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} />
-              <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
+              <CartesianGrid stroke="#000000" strokeDasharray="0" strokeWidth={1} />
+              <XAxis
+                dataKey="month"
+                stroke="#000000"
+                strokeWidth={2}
+                fontSize={11}
+                tickLine={true}
+                tick={{ fill: '#000000', fontWeight: 'bold' }}
+              />
+              <YAxis
+                stroke="#000000"
+                strokeWidth={2}
+                fontSize={11}
+                tickLine={true}
+                tick={{ fill: '#000000', fontWeight: 'bold' }}
+              />
               <Tooltip
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="rounded-lg border border-slate-700 bg-slate-900 p-2.5 shadow-xl text-xs">
-                        <p className="font-bold text-slate-300">{data.month}</p>
-                        <p className="text-purple-400 font-mono mt-1">₹{data.Spend.toLocaleString()}</p>
+                      <div className="border-2 border-black bg-white p-3 shadow-brutal text-xs font-mono">
+                        <p className="font-black uppercase text-black">{data.month}</p>
+                        <p className="font-bold text-black mt-1">₹{data.Spend.toLocaleString()}</p>
                         {data.Hikes > 0 && (
-                          <p className="text-rose-400 font-medium mt-0.5">
-                            🚨 {data.Hikes} price hike(s) detected!
+                          <p className="font-black text-critical mt-1 uppercase">
+                            Warning: {data.Hikes} price hike(s) detected!
                           </p>
                         )}
                       </div>
@@ -149,14 +177,14 @@ export function SpendOverview({ summary }: SpendOverviewProps) {
                   return null;
                 }}
               />
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
+              <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingTop: '8px' }} />
               <Line
-                type="monotone"
+                type="linear"
                 dataKey="Spend"
-                stroke="#A855F7"
+                stroke="#000000"
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#A855F7' }}
-                activeDot={{ r: 6, fill: '#38BDF8' }}
+                dot={{ r: 5, fill: '#FF3366', stroke: '#000000', strokeWidth: 2 }}
+                activeDot={{ r: 8, fill: '#FFDE59', stroke: '#000000', strokeWidth: 2 }}
               />
             </LineChart>
           </ResponsiveContainer>
