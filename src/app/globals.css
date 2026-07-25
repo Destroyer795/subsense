@@ -29,3 +29,23 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #333333;
 }
+
+/* Printable PDF Executive Report Formatting */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  header, footer, button, form, .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .shadow-brutal, .shadow-brutal-lg, .shadow-brutal-sm {
+    box-shadow: none !important;
+  }
+  .border-4, .border-2 {
+    border-width: 2px !important;
+  }
+}

@@ -5,7 +5,9 @@ import { DashboardSummary, SubscriptionItem } from '@/types';
 import { SpendOverview } from './SpendOverview';
 import { SubscriptionList } from './SubscriptionList';
 import { WhatIfSimulator } from './WhatIfSimulator';
-import { Wallet, ShieldCheck, TrendingDown, Layers, Activity } from 'lucide-react';
+import { LeakForecastChart } from './LeakForecastChart';
+import { ChatAssistant } from './ChatAssistant';
+import { Wallet, ShieldCheck, TrendingDown, Layers, Activity, Printer } from 'lucide-react';
 
 interface DashboardProps {
   summary: DashboardSummary;
@@ -24,7 +26,18 @@ export function Dashboard({
 
   return (
     <div className="w-full space-y-8">
-      {/* Active Dataset Banner */}
+      {/* Printable Report Header (Visible only when exporting PDF) */}
+      <div className="hidden print-only border-4 border-black p-6 mb-6">
+        <h1 className="text-3xl font-black uppercase text-black">SubSense Executive Subscription Leak Report</h1>
+        <p className="text-xs font-mono font-bold uppercase mt-1">Generated: {new Date().toLocaleDateString()} | Feed: {datasetName}</p>
+        <div className="grid grid-cols-3 gap-4 mt-4 text-xs font-mono font-bold border-t-2 border-black pt-4">
+          <div>Total Monthly Spend: ₹{summary.totalMonthlySpend.toLocaleString()}</div>
+          <div>Potential Annual Savings: ₹{summary.potentialAnnualSavings.toLocaleString()}</div>
+          <div>Total Subscriptions: {summary.totalSubscriptions}</div>
+        </div>
+      </div>
+
+      {/* Active Dataset & Export Report Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-4 border-black bg-white p-4 shadow-brutal-lg">
         <div className="flex items-center space-x-3">
           <div className="flex h-10 w-10 items-center justify-center border-2 border-black bg-warning shadow-brutal-sm text-black">
@@ -40,10 +53,18 @@ export function Dashboard({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 text-xs font-mono font-bold text-black">
-          <span className="border-2 border-black bg-safe px-3 py-1 shadow-brutal-sm uppercase">
+        <div className="flex items-center space-x-3">
+          <span className="hidden md:inline-block border-2 border-black bg-safe px-3 py-1.5 text-xs font-mono font-bold text-black shadow-brutal-sm uppercase">
             {subscriptions.length} Subscriptions Detected
           </span>
+
+          <button
+            onClick={() => window.print()}
+            className="flex items-center space-x-2 border-2 border-black bg-critical px-4 py-1.5 text-xs font-mono font-bold uppercase tracking-wider text-white shadow-brutal active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+          >
+            <Printer className="h-4 w-4 stroke-[2.5]" />
+            <span>Export PDF Report</span>
+          </button>
         </div>
       </div>
 
@@ -112,13 +133,17 @@ export function Dashboard({
         </div>
       </div>
 
-      {/* Visual Spend Overview Charts */}
+      {/* Feature 1: Grounded Gemini AI Assistant */}
+      <ChatAssistant subscriptions={subscriptions} summary={summary} />
+
+      {/* Visual Spend Overview Charts & Feature 2: 12-Month Leak Forecast */}
       <SpendOverview summary={summary} />
+      <LeakForecastChart subscriptions={subscriptions} />
 
       {/* What-If Simulator */}
       <WhatIfSimulator subscriptions={subscriptions} totalMonthlySpend={summary.totalMonthlySpend} />
 
-      {/* Subscription Detailed List */}
+      {/* Subscription Detailed List & Feature 3: Category Price Benchmarking */}
       <SubscriptionList subscriptions={subscriptions} onToggleDormancy={onToggleDormancy} />
     </div>
   );
