@@ -6,6 +6,7 @@ import {
   GeminiRecommendation,
   EmailDraft,
 } from '@/types';
+import { compareToCategoryBenchmark } from '@/data/category-benchmarks';
 import {
   ShieldAlert,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   UserX,
   UserCheck,
   AlertCircle,
+  BarChart2,
 } from 'lucide-react';
 import { EmailModal } from './EmailModal';
 
@@ -172,14 +174,14 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
               {/* Expandable Details Drawer */}
               {isExpanded && (
                 <div className="border-t-4 border-black bg-canvas p-6 space-y-6">
-                  {/* Formula Breakdown & Extraction Evidence */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Formula Breakdown, Extraction Evidence & Benchmark Comparison */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Sub-score breakdown */}
                     <div className="border-2 border-black bg-white p-4 space-y-3 shadow-brutal">
                       <div className="flex items-center justify-between border-b-2 border-black pb-2">
                         <h5 className="text-xs font-mono font-bold uppercase text-black flex items-center gap-1.5">
                           <Info className="h-4 w-4 stroke-[2.5]" />
-                          <span>Leak Score Formula Breakdown</span>
+                          <span>Leak Score Breakdown</span>
                         </h5>
                         <span className="border border-black bg-black px-2 py-0.5 text-xs font-mono font-black text-white">
                           {score}/100
@@ -188,32 +190,59 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
 
                       <div className="space-y-2 text-xs font-mono font-bold text-black">
                         <div className="flex justify-between items-center">
-                          <span>Dormancy Score (40% weight):</span>
+                          <span>Dormancy Score (40%):</span>
                           <span className="border border-black bg-warning px-1.5 py-0.5">{sub.leakScore.dormancyScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span>Price Drift Score (30% weight):</span>
+                          <span>Price Drift Score (30%):</span>
                           <span className="border border-black bg-critical text-white px-1.5 py-0.5">{sub.leakScore.priceDriftScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span>Category Redundancy (20% weight):</span>
+                          <span>Redundancy Score (20%):</span>
                           <span className="border border-black bg-warning px-1.5 py-0.5">{sub.leakScore.redundancyScore}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span>Spend Share Score (10% weight):</span>
+                          <span>Spend Share Score (10%):</span>
                           <span className="border border-black bg-safe px-1.5 py-0.5">{sub.leakScore.costShareScore}</span>
                         </div>
                       </div>
-
-                      <div className="pt-2 border-t-2 border-black space-y-1">
-                        {sub.leakScore.explanation.map((exp, idx) => (
-                          <div key={idx} className="flex items-center space-x-1.5 text-[11px] font-mono font-bold text-black">
-                            <span>•</span>
-                            <span>{exp}</span>
-                          </div>
-                        ))}
-                      </div>
                     </div>
+
+                    {/* Category Price Benchmark Box */}
+                    {(() => {
+                      const benchmark = compareToCategoryBenchmark(sub.category, sub.currentAmount);
+                      let bBadgeBg = 'bg-warning text-black';
+                      if (benchmark.status === 'ABOVE_BENCHMARK') bBadgeBg = 'bg-critical text-white';
+                      if (benchmark.status === 'BELOW_BENCHMARK') bBadgeBg = 'bg-safe text-black';
+
+                      return (
+                        <div className="border-2 border-black bg-white p-4 space-y-3 shadow-brutal">
+                          <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                            <h5 className="text-xs font-mono font-bold uppercase text-black flex items-center gap-1.5">
+                              <BarChart2 className="h-4 w-4 stroke-[2.5]" />
+                              <span>Market Benchmark</span>
+                            </h5>
+                            <span className={`border border-black px-2 py-0.5 text-[10px] font-mono font-bold uppercase ${bBadgeBg}`}>
+                              {benchmark.percentageDiff > 0 ? `+${benchmark.percentageDiff}%` : `${benchmark.percentageDiff}%`}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2 text-xs font-mono font-bold text-black">
+                            <div className="flex justify-between items-center">
+                              <span>Your Monthly Spend:</span>
+                              <span className="font-black">₹{sub.currentAmount}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span>Market Avg ({sub.category}):</span>
+                              <span>₹{benchmark.benchmarkAmount}/mo</span>
+                            </div>
+                            <p className="text-[10px] text-black font-normal border-t border-black/30 pt-2 italic">
+                              Baseline: {benchmark.tierDescription}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     {/* Extraction Evidence */}
                     <div className="border-2 border-black bg-white p-4 space-y-3 shadow-brutal">
@@ -222,7 +251,7 @@ export function SubscriptionList({ subscriptions, onToggleDormancy }: Subscripti
                           Extraction Evidence & Logs
                         </h5>
                         <span className="border border-black bg-warning px-2 py-0.5 text-[10px] font-mono font-bold text-black uppercase">
-                          Method: {extractionMethod} ({Math.round(confidence * 100)}% conf)
+                          {extractionMethod} ({Math.round(confidence * 100)}% conf)
                         </span>
                       </div>
 
