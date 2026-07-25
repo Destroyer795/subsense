@@ -64,7 +64,22 @@ const toolDeclarations: FunctionDeclaration[] = [
 function runLocalOfflineQuery(userQuery: string, subscriptions: SubscriptionItem[]): string {
   const queryLower = userQuery.toLowerCase();
 
-  if (queryLower.includes('cancel') || queryLower.includes('save') || queryLower.includes('savings')) {
+  // Priority 1: Specific "Which to cancel first / highest priority" questions
+  if (
+    queryLower.includes('first') ||
+    queryLower.includes('which') ||
+    queryLower.includes('priority') ||
+    queryLower.includes('start')
+  ) {
+    const sorted = [...subscriptions].sort((a, b) => b.leakScore.totalScore - a.leakScore.totalScore);
+    const top = sorted[0];
+    if (top) {
+      return `You should cancel ${top.merchantName} first. It carries your highest Leak Score (${top.leakScore.totalScore}/100) costing ₹${top.currentAmount}/month (${top.leakScore.explanation.join('; ')}).`;
+    }
+  }
+
+  // Priority 2: General total savings calculation
+  if (queryLower.includes('how much') || queryLower.includes('save') || queryLower.includes('savings') || queryLower.includes('total cancel')) {
     const res = computeSavingsIfCancelled(50, subscriptions);
     const data = res.data as { cancelledCount: number; monthlySavingsINR: number; annualSavingsINR: number; cancelledSubscriptions: string[] };
     if (data && data.cancelledCount > 0) {
@@ -72,6 +87,7 @@ function runLocalOfflineQuery(userQuery: string, subscriptions: SubscriptionItem
     }
   }
 
+  // Priority 3: Top/worst/highest leaks list
   if (queryLower.includes('top') || queryLower.includes('worst') || queryLower.includes('highest')) {
     const res = getTopLeaksByScore(50, subscriptions);
     const data = res.data as { merchantName: string; leakScore: number; monthlyCost: number }[];
@@ -81,6 +97,7 @@ function runLocalOfflineQuery(userQuery: string, subscriptions: SubscriptionItem
     }
   }
 
+  // Priority 4: Category breakdown
   if (queryLower.includes('category') || queryLower.includes('breakdown')) {
     const res = getCategorySpendBreakdown(subscriptions);
     const data = res.data as Record<string, { spend: number; count: number }>;
@@ -88,6 +105,7 @@ function runLocalOfflineQuery(userQuery: string, subscriptions: SubscriptionItem
     return `Category spend breakdown: ${cats}`;
   }
 
+  // Priority 5: Specific merchant lookup
   for (const sub of subscriptions) {
     if (queryLower.includes(sub.merchantName.toLowerCase())) {
       const res = getSubscriptionByName(sub.merchantName, subscriptions);
@@ -189,10 +207,18 @@ User Question: "${userQuery}"`;
   } catch (error: any) {
     const errorMsg = error?.message || String(error);
     console.warn('⚠️ [SubSense Fallback]: Gemini API request failed. Reason:', errorMsg);
+
+    let cleanReason = errorMsg;
+    if (errorMsg.includes('429') || errorMsg.includes('Quota exceeded')) {
+      cleanReason = 'Google Gemini API Free Quota Exceeded (HTTP 429 Rate Limit)';
+    } else if (errorMsg.includes('404')) {
+      cleanReason = 'Selected Gemini Model Not Found (HTTP 404)';
+    }
+
     return {
       text: runLocalOfflineQuery(userQuery, subscriptions),
       source: 'fallback',
-      errorDetails: errorMsg,
+      errorDetails: cleanReason,
     };
   }
 }
