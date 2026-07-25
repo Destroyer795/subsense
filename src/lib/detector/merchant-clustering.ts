@@ -1,5 +1,6 @@
 import { distance } from 'fastest-levenshtein';
 import { ParsedTransaction, MerchantCluster } from '../../types';
+import { MERCHANT_CONSTANTS } from '../constants';
 
 // Normalize string for comparison (uppercase, strip punctuation, remove generic words)
 function cleanToken(str: string): string {
@@ -7,7 +8,7 @@ function cleanToken(str: string): string {
     .toUpperCase()
     .replace(/[\*\.\-_]/g, ' ')
     .replace(/[^A-Z0-9\s]/g, '')
-    .replace(/\b(INC|LTD|PVT|LIMITED|INDIA|INDIA P LTD|SERVICES|CORP|PAY|VPA|CO|MEDIA|BILL)\b/g, '')
+    .replace(/\b(INC|LTD|PVT|LIMITED|INDIA|INDIA P LTD|SERVICES|CORP|VPA|CO|MEDIA|BILL)\b/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -47,27 +48,39 @@ export function areMerchantsSimilar(name1: string, name2: string): boolean {
   // Exact token match
   if (norm1 === norm2) return true;
 
-  // Prefix match (e.g. NETFLIX vs NETFLIX INDIA)
-  if (norm1.startsWith(norm2) || norm2.startsWith(norm1)) return true;
-
   const t1 = norm1.split(' ').filter(Boolean);
   const t2 = norm2.split(' ').filter(Boolean);
 
+  // Prevent false-positive clustering on distinct sub-brands (e.g. Amazon Prime vs Amazon Pay)
+  const serviceToken1 = t1.find((t) => MERCHANT_CONSTANTS.DISTINCT_SERVICE_TOKENS.includes(t));
+  const serviceToken2 = t2.find((t) => MERCHANT_CONSTANTS.DISTINCT_SERVICE_TOKENS.includes(t));
+  if (serviceToken1 && serviceToken2 && serviceToken1 !== serviceToken2) {
+    return false;
+  }
+
+  // Prefix match (e.g. NETFLIX vs NETFLIX INDIA)
+  if (norm1.startsWith(norm2) || norm2.startsWith(norm1)) return true;
+
   // Primary brand match (e.g. NETFLIX ENTERTAINMENT vs NETFLIX COM)
-  if (t1.length > 0 && t2.length > 0 && t1[0] === t2[0] && t1[0].length >= 4) {
+  if (
+    t1.length > 0 &&
+    t2.length > 0 &&
+    t1[0] === t2[0] &&
+    t1[0].length >= MERCHANT_CONSTANTS.MIN_BRAND_TOKEN_LENGTH
+  ) {
     return true;
   }
 
   // Token similarity overlap
   const tokenSim = getTokenSimilarity(name1, name2);
-  if (tokenSim >= 0.75) return true;
+  if (tokenSim >= MERCHANT_CONSTANTS.TOKEN_SIMILARITY_THRESHOLD) return true;
 
   // Levenshtein edit distance relative to length
   const maxLen = Math.max(norm1.length, norm2.length);
   const levDist = distance(norm1, norm2);
   const levSim = 1 - levDist / maxLen;
 
-  return levSim >= 0.7;
+  return levSim >= MERCHANT_CONSTANTS.LEVENSHTEIN_SIMILARITY_THRESHOLD;
 }
 
 export function clusterTransactionsByMerchant(transactions: ParsedTransaction[]): MerchantCluster[] {

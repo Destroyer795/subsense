@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { Dashboard } from '@/components/Dashboard';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RawTransaction, SubscriptionItem, DashboardSummary } from '@/types';
 import sampleStandard from '../../data/samples/sample-standard.json';
 
@@ -12,7 +13,6 @@ export default function HomePage() {
   const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
 
-  // Auto-run analysis on mount using default standard dataset for instant judge presentation
   useEffect(() => {
     const defaultTxns: RawTransaction[] = sampleStandard.transactions.map((t) => ({
       id: t.id,
@@ -51,7 +51,6 @@ export default function HomePage() {
       prev.map((sub) => {
         if (sub.id !== subId) return sub;
         const newDormant = !sub.isDormant;
-        // Recalculate leak score with new dormancy
         const newDormancyScore = newDormant ? 100 : 0;
         const newTotalScore = Math.min(
           100,
@@ -80,19 +79,19 @@ export default function HomePage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-      {/* File / Data Source Selection Component */}
-      <FileUpload onAnalyze={handleAnalyze} isLoading={isLoading} />
+    <ErrorBoundary>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
+        <FileUpload onAnalyze={handleAnalyze} isLoading={isLoading} />
 
-      {/* Dashboard View */}
-      {summary && (
-        <Dashboard
-          summary={summary}
-          subscriptions={subscriptions}
-          datasetName={datasetName}
-          onToggleDormancy={handleToggleDormancy}
-        />
-      )}
-    </div>
+        {summary && (
+          <Dashboard
+            summary={summary}
+            subscriptions={subscriptions}
+            datasetName={datasetName}
+            onToggleDormancy={handleToggleDormancy}
+          />
+        )}
+      </div>
+    </ErrorBoundary>
   );
 }

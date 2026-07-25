@@ -1,5 +1,6 @@
 import { differenceInDays, parseISO } from 'date-fns';
 import { ParsedTransaction, IntervalClassification, IntervalType } from '../../types';
+import { INTERVAL_CONSTANTS } from '../constants';
 
 export function detectInterval(transactions: ParsedTransaction[]): IntervalClassification {
   if (transactions.length < 2) {
@@ -37,16 +38,16 @@ export function detectInterval(transactions: ParsedTransaction[]): IntervalClass
   let interval: IntervalType = 'irregular';
   let targetDelta = 0;
 
-  if (avgDelta >= 5 && avgDelta <= 9) {
+  if (avgDelta >= INTERVAL_CONSTANTS.WEEKLY_MIN_DAYS && avgDelta <= INTERVAL_CONSTANTS.WEEKLY_MAX_DAYS) {
     interval = 'weekly';
     targetDelta = 7;
-  } else if (avgDelta >= 24 && avgDelta <= 36) {
+  } else if (avgDelta >= INTERVAL_CONSTANTS.MONTHLY_MIN_DAYS && avgDelta <= INTERVAL_CONSTANTS.MONTHLY_MAX_DAYS) {
     interval = 'monthly';
     targetDelta = 30;
-  } else if (avgDelta >= 75 && avgDelta <= 105) {
+  } else if (avgDelta >= INTERVAL_CONSTANTS.QUARTERLY_MIN_DAYS && avgDelta <= INTERVAL_CONSTANTS.QUARTERLY_MAX_DAYS) {
     interval = 'quarterly';
     targetDelta = 90;
-  } else if (avgDelta >= 330 && avgDelta <= 400) {
+  } else if (avgDelta >= INTERVAL_CONSTANTS.ANNUAL_MIN_DAYS && avgDelta <= INTERVAL_CONSTANTS.ANNUAL_MAX_DAYS) {
     interval = 'annual';
     targetDelta = 365;
   }

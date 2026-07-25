@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { z } from 'zod';
 import { ParsedTransaction, BankFormat } from '../../types';
+import { GEMINI_API_TIMEOUT_MS } from '../constants';
 
 const GeminiParseSchema = z.object({
   merchant: z.string().describe('Cleaned company or service name'),
@@ -16,7 +17,6 @@ export async function parseTransactionGemini(
 ): Promise<ParsedTransaction | null> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn('GEMINI_API_KEY is not set. Skipping Tier 2 Gemini fallback parsing.');
     return null;
   }
 
@@ -35,7 +35,7 @@ Identify:
 4. Bank format if identifiable (HDFC, SBI, ICICI, AXIS, or UNKNOWN).
 5. Confidence score (0.0 to 1.0).`;
 
-    const response = await ai.models.generateContent({
+    const callPromise = ai.models.generateContent({
       model: modelName,
       contents: prompt,
       config: {
@@ -54,7 +54,12 @@ Identify:
       },
     });
 
-    const rawJsonText = typeof (response as any).text === 'function' ? (response as any).text() : response.text;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Gemini parse timed out')), GEMINI_API_TIMEOUT_MS)
+    );
+
+    const response = await Promise.race([callPromise, timeoutPromise]);
+    const rawJsonText = response.text || '';
     if (!rawJsonText) return null;
 
     const parsedJson = JSON.parse(rawJsonText);
@@ -71,7 +76,7 @@ Identify:
       extractionMethod: 'llm',
     };
   } catch (error) {
-    console.error('Error executing Gemini Tier 2 transaction parsing:', error);
+    console.warn(`Gemini parse fallback bypassed for transaction ${id}:`, error);
     return null;
   }
 }

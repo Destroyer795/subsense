@@ -1,8 +1,8 @@
 import { ParsedTransaction, PriceDriftAnalysis, PriceDriftType } from '../../types';
+import { PRICE_DRIFT_CONSTANTS } from '../constants';
 
 export function analyzePriceDrift(transactions: ParsedTransaction[]): PriceDriftAnalysis {
   if (transactions.length < 2) {
-    const amount = transactions[0]?.amount || 0;
     return {
       type: 'stable',
       percentageChange: 0,
@@ -22,7 +22,7 @@ export function analyzePriceDrift(transactions: ParsedTransaction[]): PriceDrift
 
   const firstAmount = amounts[0];
   const lastAmount = amounts[amounts.length - 1];
-  const percentageChange = ((lastAmount - firstAmount) / firstAmount) * 100;
+  const percentageChange = firstAmount > 0 ? ((lastAmount - firstAmount) / firstAmount) * 100 : 0;
 
   // Calculate Mean & Standard Deviation
   const mean = amounts.reduce((a, b) => a + b, 0) / amounts.length;
@@ -32,22 +32,23 @@ export function analyzePriceDrift(transactions: ParsedTransaction[]): PriceDrift
   // Latest amount Z-score relative to overall distribution
   const zScore = stdDev > 0 ? (lastAmount - mean) / stdDev : 0;
 
-  // Detect sustained step-change vs single one-off spike
   let type: PriceDriftType = 'stable';
   let isHikeDetected = false;
   let hikeDetails: PriceDriftAnalysis['hikeDetails'] = undefined;
 
-  // Check for step change in last N charges
+  // Check for step change in charge history
   let stepIndex = -1;
   for (let i = 1; i < amounts.length; i++) {
     const prev = amounts[i - 1];
     const curr = amounts[i];
-    const diffPct = ((curr - prev) / prev) * 100;
+    const diffPct = prev > 0 ? ((curr - prev) / prev) * 100 : 0;
 
-    if (diffPct >= 10) { // >= 10% increase
-      // Verify if subsequent charges stayed at or above this new amount (sustained hike)
-      const staysHigh = amounts.slice(i).every((amt) => amt >= curr * 0.95);
-      if (staysHigh) {
+    if (diffPct >= PRICE_DRIFT_CONSTANTS.PRICE_HIKE_PERCENT_THRESHOLD) {
+      const remainingCharges = amounts.slice(i);
+      const staysHigh = remainingCharges.every((amt) => amt >= curr * 0.95);
+      
+      // A sustained hike requires at least 2 consecutive charges at the new higher price
+      if (staysHigh && remainingCharges.length >= 2) {
         stepIndex = i;
         break;
       }
@@ -62,11 +63,16 @@ export function analyzePriceDrift(transactions: ParsedTransaction[]): PriceDrift
       newAmount: amounts[stepIndex],
       effectiveDate: historicalAmounts[stepIndex].date,
     };
-  } else if (zScore >= 2.0 && percentageChange > 25) {
-    // Single anomaly / spike
+  } else if (
+    zScore >= PRICE_DRIFT_CONSTANTS.Z_SCORE_SPIKE_THRESHOLD ||
+    percentageChange >= PRICE_DRIFT_CONSTANTS.SPIKE_PERCENT_THRESHOLD
+  ) {
+    // Single anomaly / spike at the end of history
     type = 'one_off_spike';
-  } else if (Math.abs(percentageChange) > 5) {
-    type = percentageChange > 0 ? 'price_hike' : 'stable';
+  } else if (percentageChange > 5) {
+    type = 'price_hike';
+  } else {
+    type = 'stable';
   }
 
   return {

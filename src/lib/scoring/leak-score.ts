@@ -1,4 +1,5 @@
-import { LeakScoreBreakdown, PriceDriftAnalysis, SubscriptionCategory } from '../../types';
+import { LeakScoreBreakdown, PriceDriftAnalysis } from '../../types';
+import { LEAK_SCORE_WEIGHTS } from '../constants';
 
 export interface LeakScoreInput {
   isDormant: boolean;
@@ -12,7 +13,6 @@ export function calculateLeakScore(input: LeakScoreInput): LeakScoreBreakdown {
   const explanation: string[] = [];
 
   // 1. Dormancy Score (Weight 0.4)
-  // Explicit user confirmation or zero usage indicator -> 100
   let dormancyScore = 0;
   if (input.isDormant) {
     dormancyScore = 100;
@@ -22,7 +22,6 @@ export function calculateLeakScore(input: LeakScoreInput): LeakScoreBreakdown {
   }
 
   // 2. Price Drift Score (Weight 0.3)
-  // Price hikes or unexpected z-score spikes inflate leak score
   let priceDriftScore = 0;
   if (input.priceDrift.type === 'price_hike') {
     const change = Math.max(0, input.priceDrift.percentageChange);
@@ -36,7 +35,6 @@ export function calculateLeakScore(input: LeakScoreInput): LeakScoreBreakdown {
   }
 
   // 3. Redundancy Score (Weight 0.2)
-  // Multiple active subscriptions in same category (e.g. 3 OTT services)
   let redundancyScore = 0;
   if (input.categoryCountInGroup >= 3) {
     redundancyScore = 100;
@@ -49,20 +47,21 @@ export function calculateLeakScore(input: LeakScoreInput): LeakScoreBreakdown {
   }
 
   // 4. Cost Share Score (Weight 0.1)
-  // Proportion of total monthly subscription spend
   let costShareScore = 0;
   if (input.totalMonthlySpend > 0) {
     const shareRatio = input.monthlyCost / input.totalMonthlySpend;
-    costShareScore = Math.min(100, Math.round(shareRatio * 250)); // Scaled share
+    costShareScore = Math.min(100, Math.round(shareRatio * 250));
     explanation.push(`Cost share: ${(shareRatio * 100).toFixed(1)}% of total monthly spend`);
+  } else {
+    explanation.push('Cost share: 0% (single subscription detected)');
   }
 
-  // Composite Formula calculation
+  // Composite Formula calculation using explicit constants
   const rawComposite =
-    0.4 * dormancyScore +
-    0.3 * priceDriftScore +
-    0.2 * redundancyScore +
-    0.1 * costShareScore;
+    LEAK_SCORE_WEIGHTS.DORMANCY * dormancyScore +
+    LEAK_SCORE_WEIGHTS.PRICE_DRIFT * priceDriftScore +
+    LEAK_SCORE_WEIGHTS.REDUNDANCY * redundancyScore +
+    LEAK_SCORE_WEIGHTS.COST_SHARE * costShareScore;
 
   const totalScore = Math.min(100, Math.max(0, Math.round(rawComposite)));
 
