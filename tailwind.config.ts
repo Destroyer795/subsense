@@ -9,17 +9,23 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        subsense: {
-          dark: "#0F172A",
-          card: "#1E293B",
-          accent: "#38BDF8",
-          purple: "#A855F7",
-          emerald: "#10B981",
-          rose: "#F43F5E",
-          amber: "#F59E0B"
-        }
+        canvas: "#F4F0EA",
+        surface: "#FFFFFF",
+        critical: "#FF3366",
+        warning: "#FFDE59",
+        safe: "#00E676",
+        accent: "#3366FF",
+        dark: "#000000",
+      },
+      boxShadow: {
+        "brutal-sm": "2px 2px 0px 0px rgba(0,0,0,1)",
+        brutal: "4px 4px 0px 0px rgba(0,0,0,1)",
+        "brutal-lg": "8px 8px 0px 0px rgba(0,0,0,1)",
+      },
+      borderRadius: {
+        none: "0px",
+        sm: "2px",
+        DEFAULT: "2px",
       },
     },
   },
