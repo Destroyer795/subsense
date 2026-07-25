@@ -135,7 +135,7 @@ User Question: "${userQuery}"`;
     const response = await Promise.race([callPromise, timeoutPromise]);
     
     // Check if model called function(s)
-    const functionCalls = response.functionCalls ? response.functionCalls() : [];
+    const functionCalls = response.functionCalls || [];
 
     if (functionCalls && functionCalls.length > 0) {
       const toolResults: string[] = [];
