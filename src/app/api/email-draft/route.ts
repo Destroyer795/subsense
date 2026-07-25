@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { generateCancellationEmailDraft } from '@/lib/gemini/recommendations';
 import { SubscriptionItem } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

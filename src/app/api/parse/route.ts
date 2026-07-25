@@ -11,6 +11,8 @@ import {
   DashboardSummary,
 } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 // Map merchant names to categories
 function inferCategory(merchantName: string): SubscriptionCategory {
   const norm = merchantName.toUpperCase();
