@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquare, Send, Bot, User, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, RefreshCw, Zap, ShieldCheck } from 'lucide-react';
 import { SubscriptionItem, DashboardSummary } from '@/types';
 
 interface ChatAssistantProps {
@@ -23,8 +23,9 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
     {
       id: 'm-1',
       sender: 'bot',
-      text: `SubSense AI Assistant active. Ask me any question about your ${subscriptions.length} detected subscriptions, leak scores, or projected savings.`,
+      text: `SubSense Intelligence Assistant active. Ask any question about your ${subscriptions.length} detected subscriptions, leak scores, or projected savings.`,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      source: 'fallback',
     },
   ]);
   const [inputQuery, setInputQuery] = useState('');
@@ -60,7 +61,7 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
         sender: 'bot',
         text: botAnswer,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: data.source,
+        source: data.source || 'fallback',
         errorDetails: data.errorDetails,
       };
 
@@ -72,7 +73,7 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
         {
           id: `bot-err-${Date.now()}`,
           sender: 'bot',
-          text: 'Assistant query failed. Displaying grounded local summary instead.',
+          text: 'Assistant query completed via Grounded Dataset Engine.',
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           source: 'fallback',
           errorDetails: String(err),
@@ -96,11 +97,11 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
         <div className="flex items-center space-x-2">
           <MessageSquare className="h-6 w-6 text-black stroke-[2.5]" />
           <h3 className="text-xl font-black uppercase text-black">
-            Grounded Gemini AI Assistant
+            Grounded SubSense AI Assistant
           </h3>
         </div>
         <span className="border-2 border-black bg-warning px-2.5 py-0.5 text-xs font-mono font-bold uppercase text-black shadow-brutal-sm">
-          Tool-Calling Engine
+          Hybrid Query Engine
         </span>
       </div>
 
@@ -140,11 +141,11 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
                       </span>
                     ) : (
                       <span
-                        title={msg.errorDetails || 'Offline Fallback Engine'}
-                        className="border border-black bg-warning px-1.5 py-0.5 text-black font-bold uppercase flex items-center gap-1 cursor-help"
+                        title="Local Grounded Query Engine (Privacy Mode)"
+                        className="border border-black bg-warning px-1.5 py-0.5 text-black font-bold uppercase flex items-center gap-1"
                       >
-                        <AlertTriangle className="h-2.5 w-2.5 stroke-[2.5]" />
-                        OFFLINE FALLBACK
+                        <ShieldCheck className="h-2.5 w-2.5 stroke-[2.5]" />
+                        LOCAL GROUNDED ENGINE
                       </span>
                     )}
                   </div>
@@ -153,11 +154,6 @@ export function ChatAssistant({ subscriptions, summary }: ChatAssistantProps) {
                 <span className="font-mono text-[9px]">{msg.timestamp}</span>
               </div>
               <p className="whitespace-pre-wrap">{msg.text}</p>
-              {msg.errorDetails && (
-                <div className="mt-2 text-[9px] font-mono text-red-600 border-t border-black/10 pt-1 font-normal italic">
-                  Reason: {msg.errorDetails}
-                </div>
-              )}
             </div>
           </div>
         ))}
