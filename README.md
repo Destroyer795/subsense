@@ -5,7 +5,7 @@
 ![Privacy](https://img.shields.io/badge/Privacy-Stateless%20Session-FF3366?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-🚀 **Live Demo**: [https://subsense.vercel.app](https://subsense.vercel.app) *(Deployment Link - Replace with live URL upon Vercel deployment)*
+🚀 **Live Demo**: [https://subsense-nine.vercel.app/](https://subsense-nine.vercel.app/)
 
 ---
 
