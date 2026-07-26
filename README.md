@@ -216,9 +216,41 @@ npm test
 
 ---
 
-## 📸 Dashboard Screenshots
+## 📊 Regenerating Synthetic Datasets
 
-![SubSense Dashboard Overview](./docs/screenshots/dashboard.png)
+To regenerate the bundled sample JSON datasets in `/data/samples/`:
+```bash
+npm run generate-data
+```
+Outputs:
+- `data/samples/sample-standard.json` (90 txns)
+- `data/samples/sample-tech-heavy-saas.json` (118 txns)
+- `data/samples/sample-lifestyle-ott.json` (76 txns)
+
+---
+
+## 🌐 Deploying to Vercel
+
+SubSense is stateless and ready for instant 1-click deployment to Vercel:
+
+1. Push your repository to GitHub (`git push origin main`).
+2. Import the project into [Vercel](https://vercel.com).
+3. Add Environment Variables in Vercel settings:
+   - `GEMINI_API_KEY`: Your Google AI Studio API key
+   - `GEMINI_MODEL`: `gemini-2.5-flash`
+4. Click **Deploy**.
+
+---
+
+## 📸 Product Screenshots & Visual Evidence
+
+| 1. Dashboard & Dataset Feed | 2. Grounded AI Chat Assistant |
+| :---: | :---: |
+| ![Dashboard Overview](./docs/screenshots/dashboard.png) | ![Grounded AI Assistant](./docs/screenshots/chat-assistant.png) |
+
+| 3. Detected Subscriptions & Price Hike Analysis |
+| :---: |
+| ![Subscription List & Price Hike Analysis](./docs/screenshots/subscription-details.png) |
 
 ---
 
