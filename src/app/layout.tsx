@@ -4,7 +4,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'SubSense — Recurring Payment & Subscription Leak Detector',
+  title: 'SubSense - Recurring Payment & Subscription Leak Detector',
   description:
     'Enterprise-grade threat detection engine for hidden subscriptions, unannounced price hikes, and recurring billing leaks.',
 };

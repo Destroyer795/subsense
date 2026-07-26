@@ -1,4 +1,4 @@
-# ⚡ SubSense — Hidden Subscription & Recurring Payment Leak Detector
+# ⚡ SubSense - Hidden Subscription & Recurring Payment Leak Detector
 
 > **Hackathon Submission**: InnovaHack Chapter-1  
 > **Domain**: FinTech  

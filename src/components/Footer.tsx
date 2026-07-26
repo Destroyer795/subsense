@@ -11,7 +11,7 @@ export function Footer() {
           <div className="flex items-center space-x-2">
             <Award className="h-5 w-5 stroke-[2.5]" />
             <span className="text-sm font-bold uppercase tracking-wide">
-              SubSense — InnovaHack Chapter-1 Submission (FinTech Track)
+              SubSense - InnovaHack Chapter-1 Submission (FinTech Track)
             </span>
           </div>
 
