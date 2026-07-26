@@ -44,5 +44,6 @@ export const LEAK_SCORE_WEIGHTS = {
   COST_SHARE: 0.1,
 };
 
-// Gemini API Timeout (in milliseconds) for Demo Safety
+// Gemini API Timeout & Default Model for Demo Safety
 export const GEMINI_API_TIMEOUT_MS = 8000;
+export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';

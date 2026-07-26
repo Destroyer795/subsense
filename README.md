@@ -174,7 +174,7 @@ $$\text{LeakScore} = 0.4 \times \text{DormancyScore} + 0.3 \times \text{PriceDri
 | **Fuzzy Matching** | `fastest-levenshtein` | Merchant string normalization & clustering |
 | **Interval Math** | `date-fns` | Date delta & billing frequency calculation |
 | **Data Viz** | Recharts | Donut breakdown & 12-month area forecast charts |
-| **PDF Export** | Vector Print & PDF Engine | 1-click vector PDF executive report export |
+| **PDF Export** | Browser Print API + `@media print` CSS | 1-click vector PDF executive report via native print dialog |
 | **Testing** | Vitest | Automated unit test suite (33 passing tests) |
 
 ---
@@ -200,7 +200,7 @@ cp .env.example .env
 Fill in your Gemini API key in `.env`:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
 ### 3. Run Development Server

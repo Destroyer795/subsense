@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { z } from 'zod';
 import { SubscriptionItem, GeminiRecommendation, EmailDraft } from '../../types';
-import { GEMINI_API_TIMEOUT_MS } from '../constants';
+import { GEMINI_API_TIMEOUT_MS, DEFAULT_GEMINI_MODEL } from '../constants';
 
 const RecommendationSchema = z.object({
   action: z.enum(['cancel', 'downgrade', 'renegotiate', 'keep']),
@@ -86,7 +86,7 @@ export async function generateGeminiRecommendation(
   subscription: SubscriptionItem
 ): Promise<GeminiRecommendation> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 
   if (!apiKey) {
     return getOfflineRecommendationFallback(subscription);

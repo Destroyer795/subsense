@@ -6,7 +6,7 @@ import {
   computeSavingsIfCancelled,
   getCategorySpendBreakdown,
 } from './chat-tools';
-import { GEMINI_API_TIMEOUT_MS } from '../constants';
+import { GEMINI_API_TIMEOUT_MS, DEFAULT_GEMINI_MODEL } from '../constants';
 
 export interface ChatResponseResult {
   text: string;
@@ -123,7 +123,7 @@ export async function processChatQueryWithTools(
   summary: DashboardSummary
 ): Promise<ChatResponseResult> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 
   if (!apiKey || apiKey.includes('your_gemini_api_key')) {
     console.warn('⚠️ [SubSense AI]: No valid GEMINI_API_KEY configured. Running offline grounded query engine.');

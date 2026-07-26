@@ -1,7 +1,7 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { z } from 'zod';
 import { ParsedTransaction, BankFormat } from '../../types';
-import { GEMINI_API_TIMEOUT_MS } from '../constants';
+import { GEMINI_API_TIMEOUT_MS, DEFAULT_GEMINI_MODEL } from '../constants';
 
 const GeminiParseSchema = z.object({
   merchant: z.string().describe('Cleaned company or service name'),
@@ -20,7 +20,7 @@ export async function parseTransactionGemini(
     return null;
   }
 
-  const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const modelName = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 
   try {
     const ai = new GoogleGenAI({ apiKey });
