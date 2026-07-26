@@ -244,13 +244,17 @@ SubSense is stateless and ready for instant 1-click deployment to Vercel:
 
 ## 📸 Product Screenshots & Visual Evidence
 
-| 1. Dashboard & Dataset Feed | 2. Grounded AI Chat Assistant |
+| 1. Dashboard & Feed Selector | 2. Grounded Gemini AI Assistant |
 | :---: | :---: |
 | ![Dashboard Overview](./docs/screenshots/dashboard.png) | ![Grounded AI Assistant](./docs/screenshots/chat-assistant.png) |
 
-| 3. Detected Subscriptions & Price Hike Analysis |
+| 3. Subscriptions & Price Hike Analysis | 4. 12-Month Waste Forecast |
+| :---: | :---: |
+| ![Subscription List & Price Hike Analysis](./docs/screenshots/subscription-details.png) | ![12-Month Leak Forecast Chart](./docs/screenshots/forecast-chart.png) |
+
+| 5. 1-Click Executive PDF Report Export |
 | :---: |
-| ![Subscription List & Price Hike Analysis](./docs/screenshots/subscription-details.png) |
+| ![Export Executive PDF Report](./docs/screenshots/pdf-report.png) |
 
 ---
 
